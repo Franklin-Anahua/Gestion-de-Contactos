@@ -1,0 +1,177 @@
+#include <iostream>
+#include <string.h>
+#include <cstring>
+#include <cstdlib>
+using namespace std;
+void menu_principal();
+void Agregar_contacto();
+void Eliminar_contacto();
+void Contactos_registrados();
+void Contactos_existentes();
+
+struct ContactoEmail {
+    char nombres[50];
+    char sexo;
+    int edad;
+    char telefono[15];
+    char email[50];
+    char nacionalidad[20];
+};
+
+ContactoEmail contactos[100];
+int numcontacto = 0;
+
+int main() {
+    menu_principal();
+    return 0;
+}
+
+void Agregar_contacto() {
+	setlocale(LC_ALL, "");
+	system("cls");
+    cout << "Ingrese nombres completos: ";
+    cin >> contactos[numcontacto].nombres;
+    cout << "Ingrese sexo (M/F): ";
+    cin >> contactos[numcontacto].sexo;
+    cout << "Ingrese edad: ";
+    cin >> contactos[numcontacto].edad;
+    cout << "Ingrese teléfono: ";
+    cin >> contactos[numcontacto].telefono;
+    cout << "Ingrese email: ";
+    cin >> contactos[numcontacto].email;
+    cout << "Ingrese nacionalidad: ";
+    cin >> contactos[numcontacto].nacionalidad;
+    numcontacto++;
+}
+
+int buscarContactoPorEmail(const ContactoEmail contactos[], int numcontacto, const string& email) {
+    for (int i = 0; i < numcontacto; ++i) {
+        if (contactos[i].email == email) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void Eliminar_contacto() {
+	setlocale(LC_ALL, "");
+	system("cls");
+	
+    string correoEliminar;
+    cout << "Ingrese el correo del contacto a eliminar: ";
+    cin >> correoEliminar;
+    int indiceEliminar = buscarContactoPorEmail(contactos, numcontacto, correoEliminar);
+    if (indiceEliminar != -1) {
+    	for (int i = indiceEliminar; i < numcontacto - 1; ++i) {
+            contactos[i] = contactos[i + 1];
+        }
+        numcontacto--;
+        cout << "Contacto eliminado exitosamente.\n";
+    } else {
+        cout << "Correo no encontrado. No se pudo eliminar el contacto.\n";
+    }
+	system("pause>nul");
+}
+
+void Contactos_registrados() {
+	system("cls");
+	setlocale(LC_ALL, "");
+	if (numcontacto == 0) {
+        cout << "No hay contactos registrados." << endl;
+    } else {
+    	cout << "------------ Listado de contactos ------------\n";
+    	for (int i = 0; i < numcontacto; i++) {
+        	cout << contactos[i].nombres << " // ";
+        	cout << contactos[i].sexo << " // ";
+    		cout << contactos[i].edad << " // ";
+        	cout << contactos[i].telefono << " // ";
+			cout << contactos[i].email << " // ";
+        	cout << contactos[i].nacionalidad;
+        	cout << "" << endl;
+    	}
+    	cout << "----------------------------------------------\n";
+	}
+	system("pause>nul");
+}
+
+void ordenarPorServidor() {
+    for(int i = 0; i < numcontacto - 1; i++) {
+       	for(int j = 0; j < numcontacto - i - 1; j++) {
+            char *dominio1 = strchr(contactos[j].email, '@') + 1;
+            char *dominio2 = strchr(contactos[j + 1].email, '@') + 1;
+            
+            if(strcmp(dominio1, "yahoo.com") == 0 && (strcmp(dominio2, "outlook.com") == 0 || strcmp(dominio2, "gmail.com") == 0)) {
+
+                ContactoEmail temp = contactos[j];
+                contactos[j] = contactos[j + 1];
+                contactos[j + 1] = temp;
+            } else if(strcmp(dominio1, "outlook.com") == 0 && strcmp(dominio2, "gmail.com") == 0) {
+
+                ContactoEmail temp = contactos[j];
+                contactos[j] = contactos[j + 1];
+                contactos[j + 1] = temp;
+            }
+        }
+    }	
+}
+
+void Contactos_existentes() {
+    if (numcontacto == 0) {
+        cout << "No hay contactos registrados." << endl;
+    } else {
+        ordenarPorServidor();
+        system("cls");
+		setlocale(LC_ALL, "");
+	
+    	cout << "------------ Listado de contactos ------------\n";
+    	for (int i = 0; i < numcontacto; i++) {
+        	cout << contactos[i].nombres << " // ";
+        	cout << contactos[i].sexo << " // ";
+    		cout << contactos[i].edad << " // ";
+			cout << contactos[i].telefono << " // ";
+			cout << contactos[i].email << " // ";
+			cout << contactos[i].nacionalidad;
+			cout << "" << endl;
+    	}
+    	cout << "----------------------------------------------\n";
+		system("pause>nul");
+    }
+}
+
+void menu_principal() {
+	setlocale(LC_ALL, "");
+    int opcion;
+    bool repite = true;
+    do {
+        system("cls");
+        
+        cout << "\n\t\t\tGESTIÓN DE CONTACTOS\n";
+        cout << "\t1. Agregar contacto\n";
+        cout << "\t2. Eliminar contacto\n";
+        cout << "\t3. Contactos registrados\n";
+        cout << "\t4. Contactos existentes y ordenados\n";
+        cout << "\t0. Salir\n";
+        cout << "\n\tOpcion: ";
+        cin >> opcion;
+        
+        switch (opcion) {
+            case 1:
+                Agregar_contacto();
+                break;
+            case 2:
+                Eliminar_contacto();
+                break;
+            case 3:
+				Contactos_registrados();
+				break;
+            case 4:
+            	Contactos_existentes();
+                break;
+            case 0:
+                repite = false;
+                break;
+            default:
+                cout << "Opción no válida. Inténtelo de nuevo.\n";
+        }
+    } while (repite);
+}
